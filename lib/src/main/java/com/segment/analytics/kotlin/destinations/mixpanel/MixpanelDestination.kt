@@ -9,6 +9,7 @@ import com.segment.analytics.kotlin.android.utilities.toJSONObject
 import com.segment.analytics.kotlin.core.*
 import com.segment.analytics.kotlin.core.platform.DestinationPlugin
 import com.segment.analytics.kotlin.core.platform.Plugin
+import com.segment.analytics.kotlin.core.platform.VersionedPlugin
 import com.segment.analytics.kotlin.core.platform.plugins.logger.*
 import com.segment.analytics.kotlin.core.utilities.*
 import kotlinx.serialization.*
@@ -67,7 +68,7 @@ data class MixpanelSettings(
 
 class MixpanelDestination(
     private val context: Context
-) : DestinationPlugin(), AndroidLifecycle {
+) : DestinationPlugin(), AndroidLifecycle, VersionedPlugin {
 
     internal var settings: MixpanelSettings? = null
     internal var mixpanel: MixpanelAPI? = null
@@ -250,5 +251,9 @@ class MixpanelDestination(
     private fun Map<String, JsonElement>.map(
         keyMapper: Map<String, String>,
     ): Map<String, JsonElement> = JsonObject(this).mapTransform(keyMapper, null)
+
+    override fun version(): String {
+        return BuildConfig.VERSION_NAME
+    }
 
 }
