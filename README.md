@@ -7,13 +7,13 @@ Add Mixpanel device mode support to your applications via this plugin for [Analy
 To install the Segment-Mixpanel integration, simply add this line to your gradle file:
 
 ```
-implementation 'com.segment.analytics.kotlin.destinations:mixpanel:1.4.4'
+implementation 'com.segment.analytics.kotlin.destinations:mixpanel:<latest_version>'
 ```
 
 Or the following for Kotlin DSL
 
 ```
-implementation("com.segment.analytics.kotlin.destinations:mixpanel:1.4.4")
+implementation("com.segment.analytics.kotlin.destinations:mixpanel:<latest_version>")
 ```
 
 
