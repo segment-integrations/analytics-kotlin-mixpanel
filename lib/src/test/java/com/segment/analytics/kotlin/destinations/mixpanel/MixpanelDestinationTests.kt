@@ -1,9 +1,11 @@
-package com.segment.analytics.kotlin.destinations.plugins
+package com.segment.analytics.kotlin.destinations.mixpanel
 
 import android.content.Context
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import com.segment.analytics.kotlin.core.*
 import com.segment.analytics.kotlin.core.platform.Plugin
+import com.segment.analytics.kotlin.destinations.mixpanel.MixpanelDestination
+import com.segment.analytics.kotlin.destinations.mixpanel.MixpanelSettings
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.serialization.decodeFromString
@@ -12,11 +14,10 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
-
 
 class MixpanelDestinationTests {
 
@@ -81,20 +82,23 @@ class MixpanelDestinationTests {
         mixpanelDestination.update(settingsBlob, Plugin.UpdateType.Initial)
 
         /* assertions about config */
-        assertNotNull(mixpanelDestination.settings)
+        Assertions.assertNotNull(mixpanelDestination.settings)
         with(mixpanelDestination.settings!!) {
-            assertFalse(consolidatedPageCalls)
-            assertTrue(isPeopleEnabled)
-            assertFalse(trackAllPages)
-            assertTrue(trackCategorizedPages)
-            assertFalse(trackNamedPages)
-            assertFalse(setAllTraitsByDefault)
+            Assertions.assertFalse(consolidatedPageCalls)
+            Assertions.assertTrue(isPeopleEnabled)
+            Assertions.assertFalse(trackAllPages)
+            Assertions.assertTrue(trackCategorizedPages)
+            Assertions.assertFalse(trackNamedPages)
+            Assertions.assertFalse(setAllTraitsByDefault)
 
-            assertEquals("token1234", token)
+            Assertions.assertEquals("token1234", token)
 
-            assertEquals(emptySet<String>(), superPropertiesFilter)
-            assertEquals(setOf("email", "username", "phone_number"), peoplePropertiesFilter)
-            assertEquals(setOf("Product Clicked", "Product Viewed"), increments)
+            Assertions.assertEquals(emptySet<String>(), superPropertiesFilter)
+            Assertions.assertEquals(
+                setOf("email", "username", "phone_number"),
+                peoplePropertiesFilter
+            )
+            Assertions.assertEquals(setOf("Product Clicked", "Product Viewed"), increments)
         }
     }
 
@@ -125,7 +129,7 @@ class MixpanelDestinationTests {
         )
         val screenEvent = mixpanelDestination.screen(sampleEvent)
 
-        assertNotNull(screenEvent)
+        Assertions.assertNotNull(screenEvent)
         verify { mockMixpanel wasNot Called }
     }
 
@@ -154,7 +158,7 @@ class MixpanelDestinationTests {
         )
         val screenEvent = mixpanelDestination.screen(sampleEvent)
 
-        assertNotNull(screenEvent)
+        Assertions.assertNotNull(screenEvent)
         verify {
             mockMixpanel.track(
                 "Viewed LoginFragment Screen",
@@ -192,7 +196,7 @@ class MixpanelDestinationTests {
         )
         val screenEvent = mixpanelDestination.screen(sampleEvent)
 
-        assertNotNull(screenEvent)
+        Assertions.assertNotNull(screenEvent)
         verify {
             mockMixpanel.track(
                 "Loaded a Screen",
@@ -232,7 +236,7 @@ class MixpanelDestinationTests {
         )
         val screenEvent = mixpanelDestination.screen(sampleEvent)
 
-        assertNotNull(screenEvent)
+        Assertions.assertNotNull(screenEvent)
         verify {
             mockMixpanel.track(
                 "Viewed LoginFragment Screen",
@@ -271,7 +275,7 @@ class MixpanelDestinationTests {
         )
         val screenEvent = mixpanelDestination.screen(sampleEvent)
 
-        assertNotNull(screenEvent)
+        Assertions.assertNotNull(screenEvent)
         verify { mockMixpanel wasNot Called }
     }
 
@@ -301,7 +305,7 @@ class MixpanelDestinationTests {
         )
         val screenEvent = mixpanelDestination.screen(sampleEvent)
 
-        assertNotNull(screenEvent)
+        Assertions.assertNotNull(screenEvent)
         verify {
             mockMixpanel.track(
                 "Viewed signup_flow Screen",
@@ -340,7 +344,7 @@ class MixpanelDestinationTests {
         )
         val screenEvent = mixpanelDestination.screen(sampleEvent)
 
-        assertNotNull(screenEvent)
+        Assertions.assertNotNull(screenEvent)
         verify { mockMixpanel wasNot Called }
     }
 
@@ -364,7 +368,7 @@ class MixpanelDestinationTests {
         val trackEvent = mixpanelDestination.track(sampleEvent)
 
 
-        assertNotNull(trackEvent)
+        Assertions.assertNotNull(trackEvent)
 
         verify {
             mockMixpanel.track(
@@ -399,7 +403,7 @@ class MixpanelDestinationTests {
         val trackEvent = mixpanelDestination.track(sampleEvent)
 
 
-        assertNotNull(trackEvent)
+        Assertions.assertNotNull(trackEvent)
 
         verify {
             mockMixpanel.track(
@@ -442,7 +446,7 @@ class MixpanelDestinationTests {
         val trackEvent = mixpanelDestination.track(sampleEvent)
 
 
-        assertNotNull(trackEvent)
+        Assertions.assertNotNull(trackEvent)
 
         verify {
             mockMixpanel.track(
@@ -479,7 +483,7 @@ class MixpanelDestinationTests {
         val trackEvent = mixpanelDestination.alias(sampleEvent)
 
 
-        assertNotNull(trackEvent)
+        Assertions.assertNotNull(trackEvent)
 
         verify {
             mockMixpanel.alias(
@@ -511,7 +515,7 @@ class MixpanelDestinationTests {
         val trackEvent = mixpanelDestination.alias(sampleEvent)
 
 
-        assertNotNull(trackEvent)
+        Assertions.assertNotNull(trackEvent)
 
         verify {
             mockMixpanel.alias(
@@ -540,7 +544,7 @@ class MixpanelDestinationTests {
         )
         val identifyEvent = mixpanelDestination.identify(sampleEvent)
 
-        assertNotNull(identifyEvent)
+        Assertions.assertNotNull(identifyEvent)
 
         verify { mockMixpanel.identify("abc-123") }
         verify {
@@ -571,7 +575,7 @@ class MixpanelDestinationTests {
         )
         val identifyEvent = mixpanelDestination.identify(sampleEvent)
 
-        assertNotNull(identifyEvent)
+        Assertions.assertNotNull(identifyEvent)
 
         verify(exactly = 0) { mockMixpanel.identify("abc-123") }
         verify {
@@ -603,7 +607,7 @@ class MixpanelDestinationTests {
         )
         val identifyEvent = mixpanelDestination.identify(sampleEvent)
 
-        assertNotNull(identifyEvent)
+        Assertions.assertNotNull(identifyEvent)
 
         verify { mockMixpanel.identify("abc-123") }
         verify {
@@ -650,7 +654,7 @@ class MixpanelDestinationTests {
         )
         val identifyEvent = mixpanelDestination.identify(sampleEvent)
 
-        assertNotNull(identifyEvent)
+        Assertions.assertNotNull(identifyEvent)
 
         val expectedTraits = JSONObject()
             .put("\$email", "123@abc.com")
@@ -701,7 +705,7 @@ class MixpanelDestinationTests {
         )
         val identifyEvent = mixpanelDestination.identify(sampleEvent)
 
-        assertNotNull(identifyEvent)
+        Assertions.assertNotNull(identifyEvent)
 
         val expectedTraits = JSONObject()
             .put("\$phone", "987-654-3210")
@@ -747,7 +751,7 @@ class MixpanelDestinationTests {
         )
         val identifyEvent = mixpanelDestination.identify(sampleEvent)
 
-        assertNotNull(identifyEvent)
+        Assertions.assertNotNull(identifyEvent)
 
         val expectedTraits = JSONObject()
             .put("\$phone", "987-654-3210")
@@ -787,7 +791,7 @@ class MixpanelDestinationTests {
         )
         val groupEvent = mixpanelDestination.group(sampleEvent)
 
-        assertNotNull(groupEvent)
+        Assertions.assertNotNull(groupEvent)
 
         // check mixpanel getGroup called with groupKey default "[Segment] Group" and groupID "grp-123"
         verify { mockMixpanel.getGroup("[Segment] Group", "grp-123") }
@@ -828,7 +832,7 @@ class MixpanelDestinationTests {
         )
         val groupEvent = mixpanelDestination.group(sampleEvent)
 
-        assertNotNull(groupEvent)
+        Assertions.assertNotNull(groupEvent)
 
         // check mixpanel getGroup called with groupKey default "ABC network" and groupID "grp-123"
         verify { mockMixpanel.getGroup("ABC network", "grp-123") }
