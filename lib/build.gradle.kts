@@ -56,7 +56,7 @@ dependencies {
 
 // Partner Dependencies
 dependencies {
-    api("com.mixpanel.android:mixpanel-android:5.8.7")
+    implementation("com.mixpanel.android:mixpanel-android:5.8.7")
 }
 
 // Test Dependencies
