@@ -4,8 +4,6 @@ import android.content.Context
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import com.segment.analytics.kotlin.core.*
 import com.segment.analytics.kotlin.core.platform.Plugin
-import com.segment.analytics.kotlin.destinations.mixpanel.MixpanelDestination
-import com.segment.analytics.kotlin.destinations.mixpanel.MixpanelSettings
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.serialization.decodeFromString
@@ -33,7 +31,7 @@ class MixpanelDestinationTests {
     init {
         MockKAnnotations.init(this)
         mockkStatic(MixpanelAPI::class)
-        every { MixpanelAPI.getInstance(mockContext, any()) } returns mockMixpanel
+        every { MixpanelAPI.getInstance(mockContext, any(), any()) } returns mockMixpanel
         every { mockMixpanel.people } returns mockMixpanelPeople
         every { mockMixpanel.getGroup(any(), any()) } returns mockMixpanelGroup
 
@@ -420,7 +418,7 @@ class MixpanelDestinationTests {
         }
 
         verify {
-            mockMixpanelPeople.set("Last Product Clicked", any());
+            mockMixpanelPeople.set("Last Product Clicked", any())
         }
     }
 
