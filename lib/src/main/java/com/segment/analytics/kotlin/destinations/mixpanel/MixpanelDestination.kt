@@ -63,7 +63,8 @@ data class MixpanelSettings(
     @SerialName("superProperties")
     var superPropertiesFilter: Set<String> = setOf(),
     @SerialName("eventIncrements")
-    var increments: Set<String> = setOf()
+    var increments: Set<String> = setOf(),
+    var trackAutomaticEvents: Boolean = false
 )
 
 class MixpanelDestination(
@@ -81,7 +82,11 @@ class MixpanelDestination(
             analytics.log("Mixpanel Destination is enabled")
             this.settings = settings.destinationSettings(key)
             if (type == Plugin.UpdateType.Initial) {
-                mixpanel = MixpanelAPI.getInstance(context, this.settings?.token)
+                mixpanel = MixpanelAPI.getInstance(
+                    context,
+                    this.settings?.token,
+                    this.settings?.trackAutomaticEvents ?: false
+                )
                 analytics.log("Mixpanel Destination loaded")
             }
         } else {
@@ -89,7 +94,7 @@ class MixpanelDestination(
         }
     }
 
-    override fun track(payload: TrackEvent): BaseEvent? {
+    override fun track(payload: TrackEvent): BaseEvent {
         val settings = settings ?: return payload
         // Example of transforming event property keys
         val eventName = payload.event
@@ -107,7 +112,7 @@ class MixpanelDestination(
         return payload
     }
 
-    override fun identify(payload: IdentifyEvent): BaseEvent? {
+    override fun identify(payload: IdentifyEvent): BaseEvent {
         val settings = settings ?: return payload
         val userId: String = payload.userId
         val traits: JsonObject = payload.traits
@@ -150,7 +155,7 @@ class MixpanelDestination(
         return payload
     }
 
-    override fun group(payload: GroupEvent): BaseEvent? {
+    override fun group(payload: GroupEvent): BaseEvent {
         val groupId = payload.groupId
         val traits = payload.traits
 
@@ -172,7 +177,7 @@ class MixpanelDestination(
         return payload
     }
 
-    override fun alias(payload: AliasEvent): BaseEvent? {
+    override fun alias(payload: AliasEvent): BaseEvent {
         val userId = payload.userId
         val previousId = if (payload.previousId == payload.anonymousId) {
             // Instead of using our own anonymousId, we use Mixpanel's own generated Id.
@@ -187,7 +192,7 @@ class MixpanelDestination(
         return payload
     }
 
-    override fun screen(payload: ScreenEvent): BaseEvent? {
+    override fun screen(payload: ScreenEvent): BaseEvent {
         val settings = settings ?: return payload
         val screenName = payload.name
         val properties = payload.properties
@@ -217,7 +222,12 @@ class MixpanelDestination(
         // This is needed to trigger a call to #checkIntentForInboundAppLink.
         // From Mixpanel's source, this won't trigger a creation of another instance. It caches
         // instances by the application context and token, both of which remain the same.
-        MixpanelAPI.getInstance(activity, settings.token);
+        MixpanelAPI.getInstance(
+            activity,
+            settings.token,
+            false,
+            this.settings?.trackAutomaticEvents ?: false
+        )
     }
 
     companion object {
