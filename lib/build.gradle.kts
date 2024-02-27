@@ -56,7 +56,7 @@ dependencies {
 
 // Partner Dependencies
 dependencies {
-    implementation("com.mixpanel.android:mixpanel-android:7.3.0")
+    implementation("com.mixpanel.android:mixpanel-android:7.3.3")
 }
 
 // Test Dependencies
