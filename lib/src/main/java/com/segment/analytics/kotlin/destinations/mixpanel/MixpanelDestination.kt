@@ -51,6 +51,7 @@ SOFTWARE.
 @Serializable
 data class MixpanelSettings(
     var token: String,
+    var enableEuropeanUnionEndpoint: Boolean = false,
     @SerialName("people")
     var isPeopleEnabled: Boolean = false,
     var setAllTraitsByDefault: Boolean = true,
@@ -71,7 +72,7 @@ class MixpanelDestination(
     private val context: Context
 ) : DestinationPlugin(), AndroidLifecycle, VersionedPlugin {
 
-    internal var settings: MixpanelSettings? = null
+    internal var mixpanelSettings: MixpanelSettings? = null
     internal var mixpanel: MixpanelAPI? = null
 
     override val key: String = "Mixpanel"
@@ -80,13 +81,18 @@ class MixpanelDestination(
         super.update(settings, type)
         if (settings.hasIntegrationSettings(this)) {
             analytics.log("Mixpanel Destination is enabled")
-            this.settings = settings.destinationSettings(key)
+            this.mixpanelSettings = settings.destinationSettings(key)
             if (type == Plugin.UpdateType.Initial) {
                 mixpanel = MixpanelAPI.getInstance(
                     context,
-                    this.settings?.token,
-                    this.settings?.trackAutomaticEvents ?: false
+                    this.mixpanelSettings?.token,
+                    this.mixpanelSettings?.trackAutomaticEvents ?: false
                 )
+
+                if (mixpanelSettings?.enableEuropeanUnionEndpoint == true) {
+                    mixpanel?.setServerURL("https://api-eu.mixpanel.com")
+                }
+
                 analytics.log("Mixpanel Destination loaded")
             }
         } else {
@@ -95,7 +101,7 @@ class MixpanelDestination(
     }
 
     override fun track(payload: TrackEvent): BaseEvent {
-        val settings = settings ?: return payload
+        val settings = mixpanelSettings ?: return payload
         // Example of transforming event property keys
         val eventName = payload.event
         val properties = payload.properties
@@ -113,7 +119,7 @@ class MixpanelDestination(
     }
 
     override fun identify(payload: IdentifyEvent): BaseEvent {
-        val settings = settings ?: return payload
+        val settings = mixpanelSettings ?: return payload
         val userId: String = payload.userId
         val traits: JsonObject = payload.traits
 
@@ -193,7 +199,7 @@ class MixpanelDestination(
     }
 
     override fun screen(payload: ScreenEvent): BaseEvent {
-        val settings = settings ?: return payload
+        val settings = mixpanelSettings ?: return payload
         val screenName = payload.name
         val properties = payload.properties
         val screenCategory = payload.category
@@ -218,7 +224,7 @@ class MixpanelDestination(
     }
 
     override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
-        val settings = settings ?: return
+        val settings = mixpanelSettings ?: return
         // This is needed to trigger a call to #checkIntentForInboundAppLink.
         // From Mixpanel's source, this won't trigger a creation of another instance. It caches
         // instances by the application context and token, both of which remain the same.
@@ -226,7 +232,7 @@ class MixpanelDestination(
             activity,
             settings.token,
             false,
-            this.settings?.trackAutomaticEvents ?: false
+            this.mixpanelSettings?.trackAutomaticEvents ?: false
         )
     }
 
@@ -250,7 +256,7 @@ class MixpanelDestination(
 
         val revenue = properties.getDouble("revenue")
 
-        with(settings!!) {
+        with(mixpanelSettings!!) {
             if (isPeopleEnabled && revenue != null && revenue != 0.0) {
                 mixpanel?.people?.trackCharge(revenue, props)
                 analytics.log("mixpanel.people.trackCharge($name, $props)")

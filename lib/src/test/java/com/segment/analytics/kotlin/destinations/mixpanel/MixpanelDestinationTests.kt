@@ -80,8 +80,8 @@ class MixpanelDestinationTests {
         mixpanelDestination.update(settingsBlob, Plugin.UpdateType.Initial)
 
         /* assertions about config */
-        Assertions.assertNotNull(mixpanelDestination.settings)
-        with(mixpanelDestination.settings!!) {
+        Assertions.assertNotNull(mixpanelDestination.mixpanelSettings)
+        with(mixpanelDestination.mixpanelSettings!!) {
             Assertions.assertFalse(consolidatedPageCalls)
             Assertions.assertTrue(isPeopleEnabled)
             Assertions.assertFalse(trackAllPages)
@@ -854,7 +854,7 @@ class MixpanelDestinationTests {
 
     private fun MixpanelDestination.setupTest(mixpanelSettings: MixpanelSettings) {
         this.mixpanel = mockMixpanel
-        this.settings = mixpanelSettings
+        this.mixpanelSettings = mixpanelSettings
     }
 
     data class JsonObjectMatcher(
