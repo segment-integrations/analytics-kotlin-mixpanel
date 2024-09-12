@@ -11,6 +11,7 @@ val VERSION_NAME: String by project
 android {
     compileSdk = 34
     buildToolsVersion = "34.0.0"
+    namespace = "com.segment.analytics.kotlin.destinations.mixpanel"
 
     defaultConfig {
         multiDexEnabled = true
