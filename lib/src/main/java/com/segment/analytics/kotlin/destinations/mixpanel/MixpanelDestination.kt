@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import com.mixpanel.android.mpmetrics.MixpanelAPI
+import com.mixpanel.android.sessionreplay.MPSessionReplay
+import com.mixpanel.android.sessionreplay.models.MPSessionReplayConfig
+import com.mixpanel.android.sessionreplay.utils.DataResidency
 import com.segment.analytics.kotlin.android.plugins.AndroidLifecycle
 import com.segment.analytics.kotlin.android.utilities.toJSONObject
 import com.segment.analytics.kotlin.core.*
@@ -69,7 +72,9 @@ data class MixpanelSettings(
 )
 
 class MixpanelDestination(
-    private val context: Context
+    private val context: Context,
+    private val sessionReplayEnabled: Boolean = false,
+    private val sessionReplayConfig: MPSessionReplayConfig = MPSessionReplayConfig()
 ) : DestinationPlugin(), AndroidLifecycle, VersionedPlugin {
 
     internal var mixpanelSettings: MixpanelSettings? = null
@@ -91,6 +96,22 @@ class MixpanelDestination(
 
                 if (mixpanelSettings?.enableEuropeanUnionEndpoint == true) {
                     mixpanel?.setServerURL("https://api-eu.mixpanel.com")
+                }
+
+                if (sessionReplayEnabled) {
+                    val euEnabled = mixpanelSettings?.enableEuropeanUnionEndpoint == true
+                    val configWithResidency = if (euEnabled) {
+                        sessionReplayConfig.copy(serverUrl = DataResidency.EU)
+                    } else {
+                        sessionReplayConfig
+                    }
+                    MPSessionReplay.initialize(
+                        appContext = context,
+                        token = this.mixpanelSettings?.token ?: "",
+                        distinctId = mixpanel?.distinctId ?: "",
+                        config = configWithResidency
+                    )
+                    analytics.log("Mixpanel Session Replay initialized")
                 }
 
                 analytics.log("Mixpanel Destination loaded")
@@ -126,6 +147,9 @@ class MixpanelDestination(
         if (userId.isNotEmpty()) {
             mixpanel?.identify(userId)
             analytics.log("mixpanel.identify($userId)")
+            if (sessionReplayEnabled) {
+                MPSessionReplay.getInstance()?.identify(userId)
+            }
         }
 
         with(settings) {

@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         multiDexEnabled = true
-        minSdk = 16
+        minSdk = 21
         targetSdk = 33
 
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
@@ -56,7 +56,8 @@ dependencies {
 
 // Partner Dependencies
 dependencies {
-    implementation("com.mixpanel.android:mixpanel-android:7.3.3")
+    implementation("com.mixpanel.android:mixpanel-android:8.8.0")
+    implementation("com.mixpanel.android:mixpanel-android-session-replay:1.4.0")
 }
 
 // Test Dependencies
